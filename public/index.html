@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team Tanuki — AI Inventarisatie</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0f0f0f;
+      color: #e8e8e8;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+      padding: 48px 16px 80px;
+    }
+
+    .container {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 48px;
+      border-left: 3px solid #ff5c00;
+      padding-left: 16px;
+    }
+
+    header h1 {
+      font-size: 22px;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: -0.3px;
+    }
+
+    header p {
+      margin-top: 8px;
+      color: #888;
+      font-size: 14px;
+    }
+
+    .question {
+      margin-bottom: 36px;
+    }
+
+    .question label.q-label {
+      display: block;
+      font-weight: 500;
+      color: #fff;
+      margin-bottom: 12px;
+      font-size: 15px;
+    }
+
+    .question label.q-label span.req {
+      color: #ff5c00;
+      margin-left: 2px;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      background: #1a1a1a;
+      border: 1px solid #2e2e2e;
+      border-radius: 6px;
+      color: #e8e8e8;
+      padding: 10px 14px;
+      font-size: 14px;
+      font-family: inherit;
+      transition: border-color 0.15s;
+      resize: vertical;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #ff5c00;
+    }
+
+    textarea {
+      min-height: 90px;
+    }
+
+    .check-group, .radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .check-group label, .radio-group label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      color: #ccc;
+      font-size: 14px;
+    }
+
+    .check-group label:hover, .radio-group label:hover {
+      color: #fff;
+    }
+
+    input[type="checkbox"],
+    input[type="radio"] {
+      accent-color: #ff5c00;
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .sub-input {
+      margin-top: 10px;
+      margin-left: 26px;
+    }
+
+    .sub-textarea {
+      margin-top: 14px;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid #1e1e1e;
+      margin: 40px 0;
+    }
+
+    button[type="submit"] {
+      background: #ff5c00;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 12px 32px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, opacity 0.15s;
+      letter-spacing: 0.1px;
+    }
+
+    button[type="submit"]:hover:not(:disabled) {
+      background: #e05200;
+    }
+
+    button[type="submit"]:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    #status {
+      margin-top: 20px;
+      font-size: 14px;
+      min-height: 20px;
+    }
+
+    #status.loading { color: #888; }
+    #status.success { color: #4caf82; font-weight: 500; }
+    #status.error { color: #e05252; }
+
+    .note {
+      font-size: 13px;
+      color: #666;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>Team Tanuki — AI Inventarisatie</h1>
+    <p>Vul in hoe jij AI gebruikt. Duurt 3 minuten. Geen meeting nodig.</p>
+  </header>
+
+  <form id="form">
+
+    <!-- Q1: Naam -->
+    <div class="question">
+      <label class="q-label" for="naam">Naam<span class="req">*</span></label>
+      <input type="text" id="naam" name="naam" placeholder="Jouw naam" required autocomplete="name">
+    </div>
+
+    <hr class="divider">
+
+    <!-- Q2: Tools -->
+    <div class="question">
+      <label class="q-label">Welke AI-tools gebruik je?</label>
+      <div class="check-group">
+        <label><input type="checkbox" name="tools" value="Cursor"> Cursor</label>
+        <label><input type="checkbox" name="tools" value="Claude Code"> Claude Code</label>
+        <label><input type="checkbox" name="tools" value="VS Code Copilot"> VS Code Copilot</label>
+        <label><input type="checkbox" name="tools" value="Claude.ai"> Claude.ai</label>
+        <label><input type="checkbox" name="tools" value="ChatGPT"> ChatGPT</label>
+        <label><input type="checkbox" name="tools" value="Anders" id="tools-anders-cb"> Anders</label>
+      </div>
+      <div class="sub-input" id="tools-anders-wrap" style="display:none">
+        <input type="text" id="tools-anders-text" placeholder="Welke tool?">
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Q3: claude.md / .cursorrules -->
+    <div class="question">
+      <label class="q-label">Heb je al een <code>claude.md</code> of <code>.cursorrules</code> ingesteld?</label>
+      <div class="radio-group">
+        <label><input type="radio" name="has_config" value="Ja" id="config-ja"> Ja</label>
+        <label><input type="radio" name="has_config" value="Nee"> Nee</label>
+      </div>
+      <div class="sub-textarea" id="config-detail-wrap" style="display:none">
+        <textarea name="config_detail" id="config_detail" placeholder="Kun je beschrijven wat erin staat, of de inhoud plakken?"></textarea>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Q4: Waarvoor -->
+    <div class="question">
+      <label class="q-label">Waarvoor gebruik je AI?</label>
+      <div class="check-group">
+        <label><input type="checkbox" name="use_cases" value="Coderen"> Coderen</label>
+        <label><input type="checkbox" name="use_cases" value="PR-review"> PR-review</label>
+        <label><input type="checkbox" name="use_cases" value="Documentatie"> Documentatie</label>
+        <label><input type="checkbox" name="use_cases" value="Tickets / Jira"> Tickets / Jira</label>
+        <label><input type="checkbox" name="use_cases" value="Brainstorm / design"> Brainstorm / design</label>
+        <label><input type="checkbox" name="use_cases" value="Anders" id="uc-anders-cb"> Anders</label>
+      </div>
+      <div class="sub-input" id="uc-anders-wrap" style="display:none">
+        <input type="text" id="uc-anders-text" placeholder="Waarvoor?">
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Q5: Wat werkt goed -->
+    <div class="question">
+      <label class="q-label" for="goed">Wat werkt goed dat we zeker moeten borgen?</label>
+      <textarea name="goed" id="goed" placeholder="Bijv. een specifieke prompt-stijl, workflow, instelling..."></textarea>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Q6: Wat werkt slecht -->
+    <div class="question">
+      <label class="q-label" for="slecht">Wat werkt slecht, of wat moet een gedeelde standaard oplossen?</label>
+      <textarea name="slecht" id="slecht" placeholder="Bijv. inconsistente output, onveilig gebruik, kennisgebrek..."></textarea>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Q7: Opt-in vs verplicht -->
+    <div class="question">
+      <label class="q-label">Voorkeur: opt-in of verplichte teamstandaard?</label>
+      <div class="radio-group">
+        <label><input type="radio" name="voorkeur" value="Opt-in"> Opt-in — iedereen kiest zelf</label>
+        <label><input type="radio" name="voorkeur" value="Verplicht"> Verplicht — zelfde basis voor iedereen</label>
+        <label><input type="radio" name="voorkeur" value="Geen mening"> Geen mening</label>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <button type="submit" id="submit-btn" disabled>Insturen</button>
+    <div id="status"></div>
+
+  </form>
+</div>
+
+<script>
+  // Enable submit when naam filled
+  const naamInput = document.getElementById('naam');
+  const submitBtn = document.getElementById('submit-btn');
+  naamInput.addEventListener('input', () => {
+    submitBtn.disabled = naamInput.value.trim() === '';
+  });
+
+  // Toggle anders-text for tools
+  document.getElementById('tools-anders-cb').addEventListener('change', function() {
+    document.getElementById('tools-anders-wrap').style.display = this.checked ? 'block' : 'none';
+  });
+
+  // Toggle anders-text for use cases
+  document.getElementById('uc-anders-cb').addEventListener('change', function() {
+    document.getElementById('uc-anders-wrap').style.display = this.checked ? 'block' : 'none';
+  });
+
+  // Toggle config detail textarea
+  document.getElementById('config-ja').addEventListener('change', function() {
+    document.getElementById('config-detail-wrap').style.display = this.checked ? 'block' : 'none';
+  });
+  document.querySelectorAll('input[name="has_config"]').forEach(el => {
+    el.addEventListener('change', function() {
+      if (this.value !== 'Ja') {
+        document.getElementById('config-detail-wrap').style.display = 'none';
+      }
+    });
+  });
+
+  document.getElementById('form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const status = document.getElementById('status');
+    submitBtn.disabled = true;
+    status.className = 'loading';
+    status.textContent = 'Bezig met insturen...';
+
+    // Collect tools
+    const tools = Array.from(document.querySelectorAll('input[name="tools"]:checked'))
+      .map(el => el.value === 'Anders' ? (document.getElementById('tools-anders-text').value || 'Anders') : el.value);
+
+    // Collect use cases
+    const useCases = Array.from(document.querySelectorAll('input[name="use_cases"]:checked'))
+      .map(el => el.value === 'Anders' ? (document.getElementById('uc-anders-text').value || 'Anders') : el.value);
+
+    const hasConfig = document.querySelector('input[name="has_config"]:checked')?.value || '';
+    const voorkeur  = document.querySelector('input[name="voorkeur"]:checked')?.value || '';
+
+    const payload = {
+      naam:          naamInput.value.trim(),
+      tools:         tools,
+      has_config:    hasConfig,
+      config_detail: document.getElementById('config_detail').value.trim(),
+      use_cases:     useCases,
+      goed:          document.getElementById('goed').value.trim(),
+      slecht:        document.getElementById('slecht').value.trim(),
+      voorkeur:      voorkeur
+    };
+
+    try {
+      const res = await fetch('/api/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.error || `Schrijven mislukt (${res.status})`);
+
+      status.className = 'success';
+      status.textContent = 'Ingestuurd. Bedankt.';
+      document.getElementById('form').style.opacity = '0.4';
+      document.getElementById('form').style.pointerEvents = 'none';
+
+    } catch (err) {
+      status.className = 'error';
+      status.textContent = `Mislukt: ${err.message}. Probeer opnieuw of meld het aan Michel.`;
+      submitBtn.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>

@@ -270,7 +270,12 @@
       <p class="q-context">Er is al een basis — de vraag is wat jou helpt om er daadwerkelijk mee te werken.</p>
       <div class="radio-group">
         <label><input type="radio" name="voorkeur" value="Betere documentatie / uitleg"> Betere documentatie / uitleg</label>
-        <label><input type="radio" name="voorkeur" value="Integratie in mijn tool"> Integratie in mijn tool</label>
+        <label><input type="radio" name="voorkeur" value="Integratie in mijn tool" id="voorkeur-integratie"> Integratie in mijn tool</label>
+      </div>
+      <div class="sub-textarea" id="integratie-detail-wrap" style="display:none">
+        <textarea name="integratie_detail" id="integratie_detail" placeholder="Wat werkt nu niet goed, of wat ontbreekt?"></textarea>
+      </div>
+      <div class="radio-group">
         <label><input type="radio" name="voorkeur" value="Teamafspraken / standaard"> Teamafspraken / standaard</label>
         <label><input type="radio" name="voorkeur" value="Geen mening"> Geen mening / gebruik ze al prima</label>
       </div>
@@ -329,6 +334,13 @@
     });
   });
 
+  document.querySelectorAll('input[name="voorkeur"]').forEach(el => {
+    el.addEventListener('change', function() {
+      document.getElementById('integratie-detail-wrap').style.display =
+        this.value === 'Integratie in mijn tool' ? 'block' : 'none';
+    });
+  });
+
   document.getElementById('form').addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -352,10 +364,11 @@
       has_config:    hasConfig,
       config_detail: document.getElementById('config_detail').value.trim(),
       use_cases:     useCases,
-      goed:          document.getElementById('goed').value.trim(),
-      slecht:        document.getElementById('slecht').value.trim(),
-      voorkeur:      voorkeur,
-      timestamp:     new Date().toISOString()
+      goed:              document.getElementById('goed').value.trim(),
+      slecht:            document.getElementById('slecht').value.trim(),
+      voorkeur:          voorkeur,
+      integratie_detail: document.getElementById('integratie_detail').value.trim(),
+      timestamp:         new Date().toISOString()
     };
 
     try {

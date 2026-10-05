@@ -162,6 +162,14 @@
       color: #666;
       margin-top: 6px;
     }
+
+    .q-context {
+      font-size: 13px;
+      color: #777;
+      margin-bottom: 14px;
+      margin-top: -4px;
+      line-height: 1.5;
+    }
   </style>
 </head>
 <body>
@@ -185,11 +193,14 @@
     <!-- Q2: Tools -->
     <div class="question">
       <label class="q-label">Welke AI-tools gebruik je?</label>
+      <p class="q-context">We willen de teamstandaard laten aansluiten op wat je al dagelijks gebruikt — niet iets nieuws opleggen.</p>
       <div class="check-group">
         <label><input type="checkbox" name="tools" value="Cursor"> Cursor</label>
         <label><input type="checkbox" name="tools" value="Claude Code"> Claude Code</label>
         <label><input type="checkbox" name="tools" value="VS Code Copilot"> VS Code Copilot</label>
         <label><input type="checkbox" name="tools" value="Claude.ai"> Claude.ai</label>
+        <label><input type="checkbox" name="tools" value="Bonzai"> Bonzai</label>
+        <label><input type="checkbox" name="tools" value="Hermes"> Hermes</label>
         <label><input type="checkbox" name="tools" value="ChatGPT"> ChatGPT</label>
         <label><input type="checkbox" name="tools" value="Anders" id="tools-anders-cb"> Anders</label>
       </div>
@@ -200,15 +211,17 @@
 
     <hr class="divider">
 
-    <!-- Q3: claude.md / .cursorrules -->
+    <!-- Q3: Bonzai / agent instructies -->
     <div class="question">
-      <label class="q-label">Heb je al een <code>claude.md</code> of <code>.cursorrules</code> ingesteld?</label>
+      <label class="q-label">Weet je dat er Bonzai-agents per project beschikbaar zijn, en gebruik je ze?</label>
+      <p class="q-context">iO heeft voor elk project Bonzai-agents opgezet. Die zijn te gebruiken vanuit Cursor, VS Code, Claude Code en andere tools. Goed om te weten wat er al leeft.</p>
       <div class="radio-group">
-        <label><input type="radio" name="has_config" value="Ja" id="config-ja"> Ja</label>
-        <label><input type="radio" name="has_config" value="Nee"> Nee</label>
+        <label><input type="radio" name="has_config" value="Ja, ik gebruik ze" id="config-ja"> Ja, ik gebruik ze</label>
+        <label><input type="radio" name="has_config" value="Wist ik niet"> Wist ik niet</label>
+        <label><input type="radio" name="has_config" value="Weet ik wel, gebruik ik niet"> Weet ik wel, gebruik ik niet</label>
       </div>
       <div class="sub-textarea" id="config-detail-wrap" style="display:none">
-        <textarea name="config_detail" id="config_detail" placeholder="Kun je beschrijven wat erin staat, of de inhoud plakken?"></textarea>
+        <textarea name="config_detail" id="config_detail" placeholder="Hoe gebruik je ze, en vanuit welke tool?"></textarea>
       </div>
     </div>
 
@@ -217,6 +230,7 @@
     <!-- Q4: Waarvoor -->
     <div class="question">
       <label class="q-label">Waarvoor gebruik je AI?</label>
+      <p class="q-context">Zo weten we voor welke taken de Bonzai-agents het meeste oplevert en waar we de standaard op moeten richten.</p>
       <div class="check-group">
         <label><input type="checkbox" name="use_cases" value="Coderen"> Coderen</label>
         <label><input type="checkbox" name="use_cases" value="PR-review"> PR-review</label>
@@ -235,6 +249,7 @@
     <!-- Q5: Wat werkt goed -->
     <div class="question">
       <label class="q-label" for="goed">Wat werkt goed dat we zeker moeten borgen?</label>
+      <p class="q-context">Dit nemen we mee in de teamstandaard — zodat het niet verloren gaat als je van project of tool wisselt.</p>
       <textarea name="goed" id="goed" placeholder="Bijv. een specifieke prompt-stijl, workflow, instelling..."></textarea>
     </div>
 
@@ -243,18 +258,21 @@
     <!-- Q6: Wat werkt slecht -->
     <div class="question">
       <label class="q-label" for="slecht">Wat werkt slecht, of wat moet een gedeelde standaard oplossen?</label>
+      <p class="q-context">Dit is de kern — wat loopt je nu tegen aan bij het gebruik van AI-tools op je project? Wat zou een gedeelde aanpak moeten fixen?</p>
       <textarea name="slecht" id="slecht" placeholder="Bijv. inconsistente output, onveilig gebruik, kennisgebrek..."></textarea>
     </div>
 
     <hr class="divider">
 
-    <!-- Q7: Opt-in vs verplicht -->
+    <!-- Q7: Wat heb je nodig -->
     <div class="question">
-      <label class="q-label">Voorkeur: opt-in of verplichte teamstandaard?</label>
+      <label class="q-label">Wat heb je nodig om de Bonzai-agents structureel te gebruiken?</label>
+      <p class="q-context">Er is al een basis — de vraag is wat jou helpt om er daadwerkelijk mee te werken.</p>
       <div class="radio-group">
-        <label><input type="radio" name="voorkeur" value="Opt-in"> Opt-in — iedereen kiest zelf</label>
-        <label><input type="radio" name="voorkeur" value="Verplicht"> Verplicht — zelfde basis voor iedereen</label>
-        <label><input type="radio" name="voorkeur" value="Geen mening"> Geen mening</label>
+        <label><input type="radio" name="voorkeur" value="Betere documentatie / uitleg"> Betere documentatie / uitleg</label>
+        <label><input type="radio" name="voorkeur" value="Integratie in mijn tool"> Integratie in mijn tool</label>
+        <label><input type="radio" name="voorkeur" value="Teamafspraken / standaard"> Teamafspraken / standaard</label>
+        <label><input type="radio" name="voorkeur" value="Geen mening"> Geen mening / gebruik ze al prima</label>
       </div>
     </div>
 
@@ -306,9 +324,8 @@
   });
   document.querySelectorAll('input[name="has_config"]').forEach(el => {
     el.addEventListener('change', function() {
-      if (this.value !== 'Ja') {
-        document.getElementById('config-detail-wrap').style.display = 'none';
-      }
+      document.getElementById('config-detail-wrap').style.display =
+        this.value === 'Ja, ik gebruik ze' ? 'block' : 'none';
     });
   });
 
